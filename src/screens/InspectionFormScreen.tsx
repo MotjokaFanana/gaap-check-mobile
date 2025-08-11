@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import config from "@/data/inspectionFormConfig";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import { exportInspectionAsPDF } from "@/utils/pdf";
 import { toast } from "@/hooks/use-toast";
 import VehicleAutoComplete from "@/components/VehicleAutoComplete";
 import { upsertVehicle } from "@/utils/vehicles";
-
+import AppHeader from "@/components/AppHeader";
 // Types
 export type ChecklistStatus = "pass" | "fail" | null;
 
@@ -59,12 +59,24 @@ const InspectionFormScreen = () => {
   const [inspectionType, setInspectionType] = useState<string>(config.inspectionTypes[0]);
   const [checklist, setChecklist] = useState<ChecklistState>(buildInitialChecklist);
   const [generalComments, setGeneralComments] = useState<string>("");
+  const [lastKnownMileage, setLastKnownMileage] = useState<number>(0);
+  const hasWarnedRef = useRef(false);
 
   useEffect(() => {
     // Reset checklist when config changes
     setChecklist(buildInitialChecklist());
   }, []);
 
+  useEffect(() => {
+    const current = Number(vehicle.mileage || 0);
+    if (lastKnownMileage > 0 && current - lastKnownMileage >= 10000 && !hasWarnedRef.current) {
+      toast({ title: "Service due soon", description: "About 10,000 km since last record. Schedule maintenance." });
+      hasWarnedRef.current = true;
+    }
+    if (current - lastKnownMileage < 10000) {
+      hasWarnedRef.current = false;
+    }
+  }, [vehicle.mileage, lastKnownMileage]);
   const allValid = useMemo(() => {
     return vehicle.make && vehicle.model && vehicle.registration ? true : false;
   }, [vehicle]);
@@ -121,6 +133,7 @@ const InspectionFormScreen = () => {
 
   return (
     <main className="min-h-screen bg-background">
+      <AppHeader />
       <section className="max-w-3xl mx-auto p-6">
         <Card className="shadow-[var(--shadow-elegant)]">
           <CardHeader>
@@ -133,12 +146,15 @@ const InspectionFormScreen = () => {
                 <VehicleAutoComplete
                   value={vehicle.registration}
                   onChange={(v) => setVehicle((prev) => ({ ...prev, registration: v.toUpperCase() }))}
-                  onSelectVehicle={(v) => setVehicle({
-                    registration: v.registration,
-                    make: v.make,
-                    model: v.model,
-                    mileage: String(v.mileage ?? ""),
-                  })}
+                  onSelectVehicle={(v) => {
+                    setVehicle({
+                      registration: v.registration,
+                      make: v.make,
+                      model: v.model,
+                      mileage: String(v.mileage ?? ""),
+                    });
+                    setLastKnownMileage(Number(v.mileage || 0));
+                  }}
                 />
               </div>
               <div className="space-y-2">

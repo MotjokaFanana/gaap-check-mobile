@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { upsertVehicle, listVehicles, removeVehicle, type Vehicle } from "@/utils/vehicles";
 import { useNavigate } from "react-router-dom";
-
+import AppHeader from "@/components/AppHeader";
 const AddVehicleScreen = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ registration: "", make: "", model: "", mileage: "" });
@@ -40,6 +40,7 @@ const AddVehicleScreen = () => {
 
   return (
     <main className="min-h-screen bg-background">
+      <AppHeader />
       <section className="max-w-3xl mx-auto p-6 space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Manage Vehicles</h1>
@@ -48,7 +49,7 @@ const AddVehicleScreen = () => {
             <Button onClick={() => navigate("/new")}>New Inspection</Button>
           </div>
         </div>
-        <Card className="shadow-[var(--shadow-elegant)]">
+        <Card className="shadow-[var(--shadow-elegant)] animate-fade-in">
           <CardHeader>
             <CardTitle>Add / Update Vehicle</CardTitle>
           </CardHeader>
@@ -79,7 +80,7 @@ const AddVehicleScreen = () => {
 
         <div className="grid grid-cols-1 gap-4">
           {vehicles.map((v) => (
-            <Card key={v.registration} className="shadow-[var(--shadow-elegant)]">
+            <Card key={v.registration} className="shadow-[var(--shadow-elegant)] animate-fade-in">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <span>{v.registration}</span>

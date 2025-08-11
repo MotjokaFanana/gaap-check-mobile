@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { exportInspectionAsPDF } from "@/utils/pdf";
 import { getAllInspections, deleteInspection, type StoredInspection } from "@/utils/storage";
 import { useNavigate } from "react-router-dom";
-
+import AppHeader from "@/components/AppHeader";
 const ReportListScreen = () => {
   const navigate = useNavigate();
   const [inspections, setInspections] = useState<StoredInspection[]>([]);
@@ -27,7 +27,8 @@ const ReportListScreen = () => {
 
   return (
     <main className="min-h-screen bg-background">
-      <section className="max-w-4xl mx-auto p-6 space-y-4">
+      <AppHeader />
+      <section className="max-w-4xl mx-auto p-6 space-y-4 animate-fade-in">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Saved Inspections</h1>
           <div className="flex gap-2">

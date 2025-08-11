@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-
+import AppHeader from "@/components/AppHeader";
 const HomeScreen = () => {
   const navigate = useNavigate();
   return (
-    <main className="min-h-screen flex items-center justify-center bg-background">
-      <section className="w-full max-w-xl px-6">
+    <main className="min-h-screen flex flex-col bg-background">
+      <AppHeader />
+      <section className="flex-1 w-full max-w-xl px-6 mx-auto flex items-center justify-center animate-fade-in">
         <Card className="shadow-[var(--shadow-elegant)]">
           <CardHeader>
             <CardTitle className="text-3xl font-bold">
