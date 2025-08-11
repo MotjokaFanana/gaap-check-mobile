@@ -1,0 +1,74 @@
+{
+  "inspectionTypes": ["Initial", "Second", "Final"],
+  "vehicleFields": [
+    { "id": "make", "label": "Make", "type": "text" },
+    { "id": "model", "label": "Model", "type": "text" },
+    { "id": "registration", "label": "Registration", "type": "text" },
+    { "id": "mileage", "label": "Mileage", "type": "number" }
+  ],
+  "categories": [
+    {
+      "id": "exterior",
+      "label": "Exterior",
+      "items": [
+        { "id": "bodywork", "label": "Bodywork condition" },
+        { "id": "lights", "label": "Lights & indicators" },
+        { "id": "tyres", "label": "Tyres & tread" },
+        { "id": "windows", "label": "Windows & mirrors" }
+      ]
+    },
+    {
+      "id": "interior",
+      "label": "Interior",
+      "items": [
+        { "id": "seatbelts", "label": "Seatbelts" },
+        { "id": "dashboard", "label": "Dashboard warnings" },
+        { "id": "horn", "label": "Horn" },
+        { "id": "cleanliness", "label": "Cleanliness" }
+      ]
+    },
+    {
+      "id": "parking",
+      "label": "Parking / Overnight",
+      "items": [
+        { "id": "secure_parking", "label": "Secure parking available" },
+        { "id": "tracking", "label": "Tracker active" }
+      ]
+    },
+    {
+      "id": "additionals",
+      "label": "Additionals",
+      "items": [
+        { "id": "fire_extinguisher", "label": "Fire Extinguisher" },
+        { "id": "first_aid", "label": "First Aid Kit" },
+        { "id": "jack", "label": "Jack" },
+        { "id": "spanner", "label": "Spanner" },
+        { "id": "triangle", "label": "Warning Triangle" },
+        { "id": "petrol_card", "label": "Petrol Card" },
+        { "id": "etag", "label": "E-tag" },
+        { "id": "licence_disc", "label": "Licence Disc" },
+        { "id": "brown_bag", "label": "Brown Bag" }
+      ]
+    },
+    {
+      "id": "canopy",
+      "label": "Canopy",
+      "items": [
+        { "id": "mounts", "label": "Mounts secure" },
+        { "id": "locks", "label": "Locks functional" }
+      ]
+    },
+    {
+      "id": "mileage_tracking",
+      "label": "Mileage Tracking",
+      "items": [
+        { "id": "odometer_match", "label": "Odometer matches log" }
+      ]
+    },
+    {
+      "id": "comments",
+      "label": "Comments",
+      "items": []
+    }
+  ]
+}
