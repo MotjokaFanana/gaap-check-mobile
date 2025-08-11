@@ -10,6 +10,8 @@ import { useNavigate } from "react-router-dom";
 import { saveInspection } from "@/utils/storage";
 import { exportInspectionAsPDF } from "@/utils/pdf";
 import { toast } from "@/hooks/use-toast";
+import VehicleAutoComplete from "@/components/VehicleAutoComplete";
+import { upsertVehicle } from "@/utils/vehicles";
 
 // Types
 export type ChecklistStatus = "pass" | "fail" | null;
@@ -81,6 +83,14 @@ const InspectionFormScreen = () => {
   };
 
   const onSave = async () => {
+    // Upsert vehicle record with latest mileage
+    await upsertVehicle({
+      registration: vehicle.registration,
+      make: vehicle.make,
+      model: vehicle.model,
+      mileage: Number(vehicle.mileage || 0),
+    });
+
     const payload = {
       id: `${Date.now()}`,
       createdAt: new Date().toISOString(),
@@ -118,17 +128,31 @@ const InspectionFormScreen = () => {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {config.vehicleFields.map((f) => (
-                <div key={f.id} className="space-y-2">
-                  <Label htmlFor={f.id}>{f.label}</Label>
-                  <Input
-                    id={f.id}
-                    type={f.type === "number" ? "number" : "text"}
-                    value={(vehicle as any)[f.id]}
-                    onChange={(e) => setVehicle((v) => ({ ...v, [f.id]: e.target.value }))}
-                  />
-                </div>
-              ))}
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="registration">Registration</Label>
+                <VehicleAutoComplete
+                  value={vehicle.registration}
+                  onChange={(v) => setVehicle((prev) => ({ ...prev, registration: v.toUpperCase() }))}
+                  onSelectVehicle={(v) => setVehicle({
+                    registration: v.registration,
+                    make: v.make,
+                    model: v.model,
+                    mileage: String(v.mileage ?? ""),
+                  })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="make">Make</Label>
+                <Input id="make" value={vehicle.make} onChange={(e) => setVehicle((v) => ({ ...v, make: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="model">Model</Label>
+                <Input id="model" value={vehicle.model} onChange={(e) => setVehicle((v) => ({ ...v, model: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="mileage">Mileage</Label>
+                <Input id="mileage" type="number" value={vehicle.mileage} onChange={(e) => setVehicle((v) => ({ ...v, mileage: e.target.value }))} />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="inspectionType">Inspection Type</Label>
                 <select

@@ -17,10 +17,13 @@ const HomeScreen = () => {
             <p className="text-muted-foreground">
               Log in not required for prototype. Start a new inspection or view saved reports.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <Button className="w-full" onClick={() => navigate("/new")}>New Inspection</Button>
               <Button className="w-full" variant="secondary" onClick={() => navigate("/reports")}>
                 View Reports
+              </Button>
+              <Button className="w-full" variant="outline" onClick={() => navigate("/vehicles")}>
+                Manage Vehicles
               </Button>
             </div>
           </CardContent>
