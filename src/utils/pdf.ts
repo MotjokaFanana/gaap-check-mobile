@@ -15,7 +15,10 @@ export async function exportInspectionAsPDF(inspection: StoredInspection) {
   doc.text(`Type: ${inspection.inspectionType}`, margin, y); y += 6;
   doc.text(`Vehicle: ${inspection.vehicle.make} ${inspection.vehicle.model}`, margin, y); y += 6;
   doc.text(`Registration: ${inspection.vehicle.registration}`, margin, y); y += 6;
-  doc.text(`Mileage: ${inspection.vehicle.mileage}`, margin, y); y += 10;
+  doc.text(`Mileage: ${inspection.vehicle.mileage}`, margin, y); y += 6;
+  if (inspection.driverName) { doc.text(`Driver: ${inspection.driverName}`, margin, y); y += 6; }
+  if (inspection.inspectorName) { doc.text(`Inspector: ${inspection.inspectorName}`, margin, y); y += 10; } else { y += 4; }
+
 
   doc.setFontSize(13);
   doc.text("Checklist", margin, y); y += 8;

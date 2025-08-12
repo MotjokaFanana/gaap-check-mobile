@@ -7,6 +7,11 @@ export interface StoredInspection {
   vehicle: { make: string; model: string; registration: string; mileage: string };
   checklist: Record<string, Record<string, { status: "pass" | "fail" | null; comment?: string }>>;
   generalComments?: string;
+  // New fields
+  inspectorName?: string;
+  driverId?: string | null;
+  driverName?: string | null;
+  signatureDataUrl?: string | null;
   synced?: boolean;
 }
 

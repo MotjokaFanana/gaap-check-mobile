@@ -9,6 +9,8 @@ import InspectionFormScreen from "@/screens/InspectionFormScreen";
 import ReportListScreen from "@/screens/ReportListScreen";
 import AddVehicleScreen from "@/screens/AddVehicleScreen";
 import NotFound from "./pages/NotFound";
+import LoginScreen from "@/screens/LoginScreen";
+import { AuthProvider, RequireAuth } from "@/contexts/AuthProvider";
 
 const queryClient = new QueryClient();
 
@@ -18,16 +20,19 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<HomeScreen />} />
-            <Route path="/new" element={<InspectionFormScreen />} />
-            <Route path="/reports" element={<ReportListScreen />} />
-            <Route path="/vehicles" element={<AddVehicleScreen />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<HomeScreen />} />
+              <Route path="/login" element={<LoginScreen />} />
+              <Route path="/new" element={<RequireAuth><InspectionFormScreen /></RequireAuth>} />
+              <Route path="/reports" element={<ReportListScreen />} />
+              <Route path="/vehicles" element={<AddVehicleScreen />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>

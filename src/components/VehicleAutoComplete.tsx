@@ -38,7 +38,7 @@ const VehicleAutoComplete = ({ value, onChange, onSelectVehicle }: Props) => {
           placeholder="Type registration..."
         />
       </PopoverTrigger>
-      <PopoverContent className="p-0" align="start">
+      <PopoverContent className="p-0 z-[100] bg-popover" align="start">
         <Command>
           <CommandInput placeholder="Search registration" value={query} onValueChange={(v) => setQuery(v)} />
           <CommandList>

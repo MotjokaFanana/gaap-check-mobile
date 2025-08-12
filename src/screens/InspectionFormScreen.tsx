@@ -13,6 +13,11 @@ import { toast } from "@/hooks/use-toast";
 import VehicleAutoComplete from "@/components/VehicleAutoComplete";
 import { upsertVehicle } from "@/utils/vehicles";
 import AppHeader from "@/components/AppHeader";
+import DriverSelect from "@/components/DriverSelect";
+import { addDriver, getDriver } from "@/utils/drivers";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import SignatureCanvas from "@/components/SignatureCanvas";
+import { useAuth } from "@/contexts/AuthProvider";
 // Types
 export type ChecklistStatus = "pass" | "fail" | null;
 
@@ -50,6 +55,7 @@ const buildInitialChecklist = (): ChecklistState => {
 
 const InspectionFormScreen = () => {
   const navigate = useNavigate();
+  const { displayName } = useAuth();
   const [vehicle, setVehicle] = useState<VehicleDetails>({
     make: "",
     model: "",
@@ -60,6 +66,12 @@ const InspectionFormScreen = () => {
   const [checklist, setChecklist] = useState<ChecklistState>(buildInitialChecklist);
   const [generalComments, setGeneralComments] = useState<string>("");
   const [lastKnownMileage, setLastKnownMileage] = useState<number>(0);
+  const [driverId, setDriverId] = useState<string | null>(null);
+  const [driverName, setDriverName] = useState<string | null>(null);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+  const [driverDialogOpen, setDriverDialogOpen] = useState(false);
+  const [driverForm, setDriverForm] = useState({ name: "", license: "", phone: "" });
+  const [driverListVersion, setDriverListVersion] = useState(0);
   const hasWarnedRef = useRef(false);
 
   useEffect(() => {
@@ -110,9 +122,13 @@ const InspectionFormScreen = () => {
       vehicle,
       checklist,
       generalComments,
+      inspectorName: displayName || null || undefined,
+      driverId,
+      driverName,
+      signatureDataUrl,
       synced: false,
-    };
-    await saveInspection(payload);
+    } as const;
+    await saveInspection(payload as any);
     toast({ title: "Saved offline", description: "Inspection stored locally." });
     navigate("/reports");
   };
@@ -125,9 +141,13 @@ const InspectionFormScreen = () => {
       vehicle,
       checklist,
       generalComments,
+      inspectorName: displayName || null || undefined,
+      driverId,
+      driverName,
+      signatureDataUrl,
       synced: false,
-    };
-    await exportInspectionAsPDF(payload);
+    } as const;
+    await exportInspectionAsPDF(payload as any);
     toast({ title: "PDF exported", description: "Download started." });
   };
 
@@ -182,6 +202,59 @@ const InspectionFormScreen = () => {
                   ))}
                 </select>
               </div>
+
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Driver</Label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex-1">
+                    <DriverSelect key={driverListVersion} value={driverId} onChange={async (id) => {
+                      setDriverId(id);
+                      if (id) {
+                        const d = await getDriver(id);
+                        setDriverName(d?.name ?? null);
+                      } else {
+                        setDriverName(null);
+                      }
+                    }} />
+                  </div>
+                  <Dialog open={driverDialogOpen} onOpenChange={setDriverDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button type="button" variant="outline">Add Driver</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add Driver</DialogTitle>
+                      </DialogHeader>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1 sm:col-span-2">
+                          <Label>Name</Label>
+                          <Input value={driverForm.name} onChange={(e) => setDriverForm((f) => ({ ...f, name: e.target.value }))} />
+                        </div>
+                        <div className="space-y-1">
+                          <Label>License</Label>
+                          <Input value={driverForm.license} onChange={(e) => setDriverForm((f) => ({ ...f, license: e.target.value }))} />
+                        </div>
+                        <div className="space-y-1">
+                          <Label>Phone</Label>
+                          <Input value={driverForm.phone} onChange={(e) => setDriverForm((f) => ({ ...f, phone: e.target.value }))} />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button type="button" onClick={async () => {
+                          if (!driverForm.name.trim()) { toast({ title: "Driver name required" }); return; }
+                          const d = await addDriver({ name: driverForm.name.trim(), license: driverForm.license, phone: driverForm.phone });
+                          setDriverId(d.id);
+                          setDriverName(d.name);
+                          setDriverListVersion((v) => v + 1);
+                          setDriverDialogOpen(false);
+                          setDriverForm({ name: "", license: "", phone: "" });
+                          toast({ title: "Driver added" });
+                        }}>Save</Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
             </div>
 
             {config.categories.filter((c) => c.id !== "comments").map((category) => (
@@ -225,6 +298,11 @@ const InspectionFormScreen = () => {
                 onChange={(e) => setGeneralComments(e.target.value)}
                 placeholder="Add any additional notes..."
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Driver Signature</Label>
+              <SignatureCanvas value={signatureDataUrl} onChange={setSignatureDataUrl} />
             </div>
 
             <div className="flex flex-wrap gap-3 pt-2">

@@ -16,7 +16,7 @@ const HomeScreen = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              Log in not required for prototype. Start a new inspection or view saved reports.
+              Inspector login is required for new inspections.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <Button className="w-full" onClick={() => navigate("/new")}>New Inspection</Button>
