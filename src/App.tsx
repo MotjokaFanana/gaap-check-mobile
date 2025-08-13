@@ -10,6 +10,7 @@ import ReportListScreen from "@/screens/ReportListScreen";
 import AddVehicleScreen from "@/screens/AddVehicleScreen";
 import NotFound from "./pages/NotFound";
 import LoginScreen from "@/screens/LoginScreen";
+import SignUpScreen from "@/screens/SignUpScreen";
 import { AuthProvider, RequireAuth } from "@/contexts/AuthProvider";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<HomeScreen />} />
               <Route path="/login" element={<LoginScreen />} />
+              <Route path="/signup" element={<SignUpScreen />} />
               <Route path="/new" element={<RequireAuth><InspectionFormScreen /></RequireAuth>} />
               <Route path="/reports" element={<ReportListScreen />} />
               <Route path="/vehicles" element={<AddVehicleScreen />} />
