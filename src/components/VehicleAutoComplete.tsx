@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
-import { searchVehicles, type Vehicle } from "@/utils/vehicles";
+import { getAllVehicles, type Vehicle } from "@/utils/database";
 
 interface Props {
   value: string;
@@ -20,8 +20,16 @@ const VehicleAutoComplete = ({ value, onChange, onSelectVehicle }: Props) => {
   useEffect(() => {
     let ignore = false;
     (async () => {
-      const list = await searchVehicles(query);
-      if (!ignore) setResults(list);
+      try {
+        const allVehicles = await getAllVehicles();
+        const filtered = query 
+          ? allVehicles.filter(v => v.registration.includes(query.toUpperCase()))
+          : allVehicles;
+        if (!ignore) setResults(filtered);
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+        if (!ignore) setResults([]);
+      }
     })();
     return () => { ignore = true; };
   }, [query]);
