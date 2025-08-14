@@ -14,6 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
+      drivers: {
+        Row: {
+          created_at: string
+          id: string
+          license: string | null
+          name: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          license?: string | null
+          name: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          license?: string | null
+          name?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      inspections: {
+        Row: {
+          checklist: Json
+          created_at: string
+          driver_id: string | null
+          driver_name: string | null
+          general_comments: string | null
+          id: string
+          inspection_type: Database["public"]["Enums"]["inspection_type"]
+          inspector_name: string | null
+          signature_data_url: string | null
+          synced: boolean
+          updated_at: string
+          user_id: string
+          vehicle_make: string
+          vehicle_mileage: number | null
+          vehicle_model: string
+          vehicle_registration: string
+        }
+        Insert: {
+          checklist: Json
+          created_at?: string
+          driver_id?: string | null
+          driver_name?: string | null
+          general_comments?: string | null
+          id?: string
+          inspection_type: Database["public"]["Enums"]["inspection_type"]
+          inspector_name?: string | null
+          signature_data_url?: string | null
+          synced?: boolean
+          updated_at?: string
+          user_id: string
+          vehicle_make: string
+          vehicle_mileage?: number | null
+          vehicle_model: string
+          vehicle_registration: string
+        }
+        Update: {
+          checklist?: Json
+          created_at?: string
+          driver_id?: string | null
+          driver_name?: string | null
+          general_comments?: string | null
+          id?: string
+          inspection_type?: Database["public"]["Enums"]["inspection_type"]
+          inspector_name?: string | null
+          signature_data_url?: string | null
+          synced?: boolean
+          updated_at?: string
+          user_id?: string
+          vehicle_make?: string
+          vehicle_mileage?: number | null
+          vehicle_model?: string
+          vehicle_registration?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_vehicle_user"
+            columns: ["user_id", "vehicle_registration"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["user_id", "registration"]
+          },
+          {
+            foreignKeyName: "inspections_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -38,6 +140,36 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicles: {
+        Row: {
+          created_at: string
+          make: string
+          mileage: number | null
+          model: string
+          registration: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          make: string
+          mileage?: number | null
+          model: string
+          registration: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          make?: string
+          mileage?: number | null
+          model?: string
+          registration?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -46,7 +178,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      inspection_type: "Initial" | "Second" | "Final"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -173,6 +305,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      inspection_type: ["Initial", "Second", "Final"],
+    },
   },
 } as const
