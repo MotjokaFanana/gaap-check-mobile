@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { listDrivers, type Driver } from "@/utils/drivers";
+import { getAllDrivers, type Driver } from "@/utils/database";
 
 interface Props {
   value: string | null;
@@ -12,8 +12,12 @@ const DriverSelect = ({ value, onChange }: Props) => {
 
   useEffect(() => {
     (async () => {
-      const list = await listDrivers();
-      setDrivers(list);
+      try {
+        const list = await getAllDrivers();
+        setDrivers(list);
+      } catch (error) {
+        console.error("Error fetching drivers:", error);
+      }
     })();
   }, []);
 

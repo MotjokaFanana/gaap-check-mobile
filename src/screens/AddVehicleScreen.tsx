@@ -3,39 +3,85 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/hooks/use-toast";
-import { upsertVehicle, listVehicles, removeVehicle, type Vehicle } from "@/utils/vehicles";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { createVehicle, updateVehicle, getAllVehicles, deleteVehicle, type Vehicle } from "@/utils/database";
+import { useAuth } from "@/contexts/AuthProvider";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import AppHeader from "@/components/AppHeader";
 const AddVehicleScreen = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [form, setForm] = useState({ registration: "", make: "", model: "", mileage: "" });
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [loading, setLoading] = useState(true);
   const disabled = useMemo(() => !form.registration || !form.make || !form.model, [form]);
 
   const load = async () => {
-    const v = await listVehicles();
-    setVehicles(v);
+    try {
+      setLoading(true);
+      const v = await getAllVehicles();
+      setVehicles(v);
+    } catch (error) {
+      console.error("Error loading vehicles:", error);
+      toast.error("Failed to load vehicles");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    load();
+  }, [user, navigate]);
 
   const onSave = async () => {
-    await upsertVehicle({
-      registration: form.registration,
-      make: form.make,
-      model: form.model,
-      mileage: Number(form.mileage || 0),
-    });
-    toast({ title: "Vehicle saved" });
-    setForm({ registration: "", make: "", model: "", mileage: "" });
-    load();
+    if (!user) {
+      toast.error("Please log in to save vehicles");
+      return;
+    }
+
+    try {
+      // Check if vehicle exists for update
+      const existingVehicle = vehicles.find(v => v.registration.toUpperCase() === form.registration.toUpperCase());
+      
+      if (existingVehicle) {
+        await updateVehicle(form.registration, {
+          make: form.make,
+          model: form.model,
+          mileage: Number(form.mileage || 0),
+        });
+        toast.success("Vehicle updated successfully");
+      } else {
+        await createVehicle({
+          registration: form.registration,
+          make: form.make,
+          model: form.model,
+          mileage: Number(form.mileage || 0),
+        });
+        toast.success("Vehicle created successfully");
+      }
+      
+      setForm({ registration: "", make: "", model: "", mileage: "" });
+      load();
+    } catch (error) {
+      console.error("Error saving vehicle:", error);
+      toast.error("Failed to save vehicle");
+    }
   };
 
   const onDelete = async (reg: string) => {
-    await removeVehicle(reg);
-    toast({ title: "Vehicle removed" });
-    load();
+    try {
+      await deleteVehicle(reg);
+      toast.success("Vehicle deleted");
+      load();
+    } catch (error) {
+      console.error("Error deleting vehicle:", error);
+      toast.error("Failed to delete vehicle");
+    }
   };
 
   return (
@@ -78,25 +124,44 @@ const AddVehicleScreen = () => {
           </CardFooter>
         </Card>
 
-        <div className="grid grid-cols-1 gap-4">
-          {vehicles.map((v) => (
-            <Card key={v.registration} className="shadow-[var(--shadow-elegant)] animate-fade-in">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <span>{v.registration}</span>
-                  <span className="text-muted-foreground text-sm">{v.make} {v.model}</span>
-                  <span className="ml-auto text-sm">Mileage: {v.mileage}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                Updated: {new Date(v.updatedAt).toLocaleString()}
-              </CardContent>
-              <CardFooter className="flex gap-2">
-                <Button variant="destructive" onClick={() => onDelete(v.registration)}>Delete</Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+        <Card className="shadow-[var(--shadow-elegant)]">
+          <CardHeader>
+            <CardTitle>Saved Vehicles</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[calc(100vh-400px)]">
+              <div className="grid grid-cols-1 gap-4 pr-4">
+                {loading ? (
+                  <div className="text-center py-4">
+                    <p className="text-muted-foreground">Loading vehicles...</p>
+                  </div>
+                ) : vehicles.length === 0 ? (
+                  <div className="text-center py-4">
+                    <p className="text-muted-foreground">No vehicles saved yet. Add your first vehicle above.</p>
+                  </div>
+                ) : (
+                  vehicles.map((v) => (
+                    <Card key={v.registration} className="shadow-[var(--shadow-elegant)] animate-fade-in">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <span>{v.registration}</span>
+                          <span className="text-muted-foreground text-sm">{v.make} {v.model}</span>
+                          <span className="ml-auto text-sm">Mileage: {v.mileage}</span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="text-sm text-muted-foreground">
+                        Updated: {new Date(v.updated_at).toLocaleString()}
+                      </CardContent>
+                      <CardFooter className="flex gap-2">
+                        <Button variant="destructive" onClick={() => onDelete(v.registration)}>Delete</Button>
+                      </CardFooter>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
       </section>
     </main>
   );
