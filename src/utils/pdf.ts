@@ -66,5 +66,12 @@ export async function exportInspectionAsPDF(inspection: StoredInspection) {
     }
   }
 
-  doc.save(`inspection-${inspection.vehicle.registration}-${inspection.id}.pdf`);
+  // Format filename: DATE_NAMEOFDRIVER_INSPECTOR_REGISTRATIONNUMBER
+  const date = new Date(inspection.createdAt).toISOString().split('T')[0].replace(/-/g, '');
+  const driverName = (inspection.driverName || 'UNKNOWN').toUpperCase().replace(/\s+/g, '');
+  const inspectorName = (inspection.inspectorName || 'UNKNOWN').toUpperCase().replace(/\s+/g, '');
+  const registration = inspection.vehicle.registration.toUpperCase().replace(/\s+/g, '');
+  
+  const filename = `${date}_${driverName}_${inspectorName}_${registration}.pdf`;
+  doc.save(filename);
 }
