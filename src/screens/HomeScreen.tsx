@@ -18,13 +18,16 @@ const HomeScreen = () => {
             <p className="text-muted-foreground">
               Inspector login is required for new inspections.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Button className="w-full" onClick={() => navigate("/new")}>New Inspection</Button>
               <Button className="w-full" variant="secondary" onClick={() => navigate("/reports")}>
                 View Reports
               </Button>
               <Button className="w-full" variant="outline" onClick={() => navigate("/vehicles")}>
                 Manage Vehicles
+              </Button>
+              <Button className="w-full" variant="outline" onClick={() => navigate("/drivers")}>
+                Manage Drivers
               </Button>
             </div>
           </CardContent>

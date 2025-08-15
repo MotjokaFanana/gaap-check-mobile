@@ -8,6 +8,7 @@ import HomeScreen from "@/screens/HomeScreen";
 import InspectionFormScreen from "@/screens/InspectionFormScreen";
 import ReportListScreen from "@/screens/ReportListScreen";
 import AddVehicleScreen from "@/screens/AddVehicleScreen";
+import DriversScreen from "@/screens/DriversScreen";
 import NotFound from "./pages/NotFound";
 import LoginScreen from "@/screens/LoginScreen";
 import SignUpScreen from "@/screens/SignUpScreen";
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="/new" element={<RequireAuth><InspectionFormScreen /></RequireAuth>} />
               <Route path="/reports" element={<ReportListScreen />} />
               <Route path="/vehicles" element={<AddVehicleScreen />} />
+              <Route path="/drivers" element={<DriversScreen />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

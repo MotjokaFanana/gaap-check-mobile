@@ -158,6 +158,37 @@ export async function deleteVehicle(registration: string) {
   if (error) throw error;
 }
 
+// Inspection creation/update function
+export async function createInspection(inspectionData: {
+  inspection_type: string;
+  vehicle_registration: string;
+  vehicle_make: string;
+  vehicle_model: string;
+  vehicle_mileage: number;
+  checklist: any;
+  general_comments?: string;
+  inspector_name?: string;
+  driver_id?: string;
+  driver_name?: string;
+  signature_data_url?: string;
+}) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("User not authenticated");
+
+  const { data, error } = await (supabase as any)
+    .from("inspections")
+    .insert({
+      ...inspectionData,
+      user_id: user.id,
+      synced: true,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
 // Driver functions
 export async function getAllDrivers(): Promise<Driver[]> {
   const { data: { user } } = await supabase.auth.getUser();
@@ -167,7 +198,6 @@ export async function getAllDrivers(): Promise<Driver[]> {
     const { data, error } = await (supabase as any)
       .from("drivers")
       .select("*")
-      .eq("user_id", user.id)
       .order("name");
 
     if (error) throw error;
@@ -176,4 +206,58 @@ export async function getAllDrivers(): Promise<Driver[]> {
     console.error("Error fetching drivers:", error);
     return [];
   }
+}
+
+export async function createDriver(driverData: {
+  name: string;
+  license?: string;
+  phone?: string;
+}) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("User not authenticated");
+
+  const { data, error } = await (supabase as any)
+    .from("drivers")
+    .insert({
+      ...driverData,
+      user_id: user.id,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateDriver(id: string, driverData: {
+  name: string;
+  license?: string;
+  phone?: string;
+}) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("User not authenticated");
+
+  const { data, error } = await (supabase as any)
+    .from("drivers")
+    .update(driverData)
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteDriver(id: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("User not authenticated");
+
+  const { error } = await (supabase as any)
+    .from("drivers")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) throw error;
 }

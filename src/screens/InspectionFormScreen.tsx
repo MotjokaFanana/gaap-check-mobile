@@ -11,10 +11,9 @@ import { saveInspection } from "@/utils/storage";
 import { exportInspectionAsPDF } from "@/utils/pdf";
 import { toast } from "@/hooks/use-toast";
 import VehicleAutoComplete from "@/components/VehicleAutoComplete";
-import { upsertVehicle } from "@/utils/vehicles";
+import { createVehicle, updateVehicle, getAllVehicles, createInspection, createDriver, getAllDrivers } from "@/utils/database";
 import AppHeader from "@/components/AppHeader";
 import DriverSelect from "@/components/DriverSelect";
-import { addDriver, getDriver } from "@/utils/drivers";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import SignatureCanvas from "@/components/SignatureCanvas";
 import { useAuth } from "@/contexts/AuthProvider";
@@ -107,30 +106,67 @@ const InspectionFormScreen = () => {
   };
 
   const onSave = async () => {
-    // Upsert vehicle record with latest mileage
-    await upsertVehicle({
-      registration: vehicle.registration,
-      make: vehicle.make,
-      model: vehicle.model,
-      mileage: Number(vehicle.mileage || 0),
-    });
+    try {
+      // Check if vehicle exists
+      const allVehicles = await getAllVehicles();
+      const existingVehicle = allVehicles.find(v => v.registration.toUpperCase() === vehicle.registration.toUpperCase());
+      
+      if (existingVehicle) {
+        // Update existing vehicle
+        await updateVehicle(vehicle.registration, {
+          make: vehicle.make,
+          model: vehicle.model,
+          mileage: Number(vehicle.mileage || 0),
+        });
+      } else {
+        // Create new vehicle
+        await createVehicle({
+          registration: vehicle.registration,
+          make: vehicle.make,
+          model: vehicle.model,
+          mileage: Number(vehicle.mileage || 0),
+        });
+      }
 
-    const payload = {
-      id: `${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      inspectionType,
-      vehicle,
-      checklist,
-      generalComments,
-      inspectorName: displayName || null || undefined,
-      driverId,
-      driverName,
-      signatureDataUrl,
-      synced: false,
-    } as const;
-    await saveInspection(payload as any);
-    toast({ title: "Saved offline", description: "Inspection stored locally." });
-    navigate("/reports");
+      // Save inspection to database
+      const inspectionDbData = {
+        inspection_type: inspectionType,
+        vehicle_registration: vehicle.registration.toUpperCase(),
+        vehicle_make: vehicle.make,
+        vehicle_model: vehicle.model,
+        vehicle_mileage: Number(vehicle.mileage || 0),
+        checklist,
+        general_comments: generalComments || undefined,
+        inspector_name: displayName || undefined,
+        driver_id: driverId || undefined,
+        driver_name: driverName || undefined,
+        signature_data_url: signatureDataUrl || undefined,
+      };
+
+      const savedInspection = await createInspection(inspectionDbData);
+
+      // Also save locally for offline access
+      const localPayload = {
+        id: savedInspection.id,
+        createdAt: savedInspection.created_at,
+        inspectionType,
+        vehicle,
+        checklist,
+        generalComments,
+        inspectorName: displayName || null || undefined,
+        driverId,
+        driverName,
+        signatureDataUrl,
+        synced: true,
+      };
+      await saveInspection(localPayload as any);
+
+      toast({ title: "Inspection saved", description: "Saved to database and locally." });
+      navigate("/reports");
+    } catch (error) {
+      console.error("Error saving inspection:", error);
+      toast({ title: "Error", description: "Failed to save inspection." });
+    }
   };
 
   const onExportPDF = async () => {
@@ -207,15 +243,17 @@ const InspectionFormScreen = () => {
                 <Label>Driver</Label>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <div className="flex-1">
-                    <DriverSelect key={driverListVersion} value={driverId} onChange={async (id) => {
-                      setDriverId(id);
-                      if (id) {
-                        const d = await getDriver(id);
-                        setDriverName(d?.name ?? null);
-                      } else {
-                        setDriverName(null);
-                      }
-                    }} />
+                     <DriverSelect key={driverListVersion} value={driverId} onChange={async (id) => {
+                       setDriverId(id);
+                       if (id) {
+                         // Find driver name from current list
+                         const allDrivers = await getAllDrivers();
+                         const d = allDrivers.find(driver => driver.id === id);
+                         setDriverName(d?.name ?? null);
+                       } else {
+                         setDriverName(null);
+                       }
+                     }} />
                   </div>
                   <Dialog open={driverDialogOpen} onOpenChange={setDriverDialogOpen}>
                     <DialogTrigger asChild>
@@ -242,13 +280,22 @@ const InspectionFormScreen = () => {
                       <DialogFooter>
                         <Button type="button" onClick={async () => {
                           if (!driverForm.name.trim()) { toast({ title: "Driver name required" }); return; }
-                          const d = await addDriver({ name: driverForm.name.trim(), license: driverForm.license, phone: driverForm.phone });
-                          setDriverId(d.id);
-                          setDriverName(d.name);
-                          setDriverListVersion((v) => v + 1);
-                          setDriverDialogOpen(false);
-                          setDriverForm({ name: "", license: "", phone: "" });
-                          toast({ title: "Driver added" });
+                          try {
+                            const d = await createDriver({ 
+                              name: driverForm.name.trim(), 
+                              license: driverForm.license || undefined, 
+                              phone: driverForm.phone || undefined 
+                            });
+                            setDriverId(d.id);
+                            setDriverName(d.name);
+                            setDriverListVersion((v) => v + 1);
+                            setDriverDialogOpen(false);
+                            setDriverForm({ name: "", license: "", phone: "" });
+                            toast({ title: "Driver added to database" });
+                          } catch (error) {
+                            console.error("Error adding driver:", error);
+                            toast({ title: "Error", description: "Failed to add driver" });
+                          }
                         }}>Save</Button>
                       </DialogFooter>
                     </DialogContent>
@@ -306,7 +353,7 @@ const InspectionFormScreen = () => {
             </div>
 
             <div className="flex flex-wrap gap-3 pt-2">
-              <Button onClick={onSave} disabled={!allValid}>Save Locally</Button>
+              <Button onClick={onSave} disabled={!allValid}>Save Inspection</Button>
               <Button variant="secondary" onClick={() => navigate("/")}>Cancel</Button>
               <Button variant="outline" onClick={onExportPDF}>Export PDF</Button>
             </div>
