@@ -44,6 +44,26 @@ export async function exportInspectionAsPDF(inspection: StoredInspection) {
     doc.setFontSize(10);
     const split = doc.splitTextToSize(inspection.generalComments, 180);
     split.forEach((line: string) => { doc.text(line, margin, y); y += 5; });
+    y += 4;
+  }
+
+  // Add signature if present
+  if (inspection.signatureDataUrl) {
+    y += 4;
+    if (y > 240) { doc.addPage(); y = margin; }
+    doc.setFontSize(13);
+    doc.text("Driver Signature", margin, y); y += 8;
+    
+    try {
+      // Add signature image to PDF
+      doc.addImage(inspection.signatureDataUrl, 'PNG', margin, y, 60, 30);
+      y += 35;
+    } catch (error) {
+      console.warn("Could not add signature to PDF:", error);
+      doc.setFontSize(10);
+      doc.text("Signature: [Present but could not be displayed]", margin, y);
+      y += 6;
+    }
   }
 
   doc.save(`inspection-${inspection.vehicle.registration}-${inspection.id}.pdf`);
