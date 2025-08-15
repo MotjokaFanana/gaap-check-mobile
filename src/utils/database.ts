@@ -85,7 +85,6 @@ export async function getAllVehicles(): Promise<Vehicle[]> {
     const { data, error } = await (supabase as any)
       .from("vehicles")
       .select("*")
-      .eq("user_id", user.id)
       .order("registration");
 
     if (error) throw error;
