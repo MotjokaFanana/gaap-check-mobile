@@ -114,7 +114,7 @@ export async function createVehicle(vehicleData: {
       user_id: user.id,
     })
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
   return data;
@@ -138,7 +138,7 @@ export async function updateVehicle(registration: string, vehicleData: {
     .eq("registration", registration.toUpperCase())
     .eq("user_id", user.id)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
   return data;
@@ -182,7 +182,7 @@ export async function createInspection(inspectionData: {
       synced: true,
     })
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
   return data;
@@ -222,7 +222,7 @@ export async function createDriver(driverData: {
       user_id: user.id,
     })
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
   return data;
@@ -242,7 +242,7 @@ export async function updateDriver(id: string, driverData: {
     .eq("id", id)
     .eq("user_id", user.id)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
   return data;

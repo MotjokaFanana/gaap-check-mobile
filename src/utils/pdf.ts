@@ -48,7 +48,8 @@ export async function exportInspectionAsPDF(inspection: StoredInspection) {
   }
 
   // Add signature if present
-  if (inspection.signatureDataUrl) {
+  const signatureDataUrl = (inspection as any).signatureDataUrl || (inspection as any).signature_data_url || null;
+  if (signatureDataUrl) {
     y += 4;
     if (y > 240) { doc.addPage(); y = margin; }
     doc.setFontSize(13);
@@ -56,7 +57,7 @@ export async function exportInspectionAsPDF(inspection: StoredInspection) {
     
     try {
       // Add signature image to PDF
-      doc.addImage(inspection.signatureDataUrl, 'PNG', margin, y, 60, 30);
+      doc.addImage(signatureDataUrl, 'PNG', margin, y, 60, 30);
       y += 35;
     } catch (error) {
       console.warn("Could not add signature to PDF:", error);
