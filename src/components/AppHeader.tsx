@@ -2,17 +2,17 @@ import ThemeToggle from "@/components/ThemeToggle";
 
 const AppHeader = () => {
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 animate-fade-in">
-      <div className="max-w-5xl mx-auto h-14 px-4 flex items-center justify-between">
-        <a href="/" className="flex items-center gap-2 hover-scale" aria-label="Go to home">
+    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 animate-fade-in">
+      <div className="max-w-5xl mx-auto h-16 px-4 flex items-center justify-between">
+        <a href="/" className="flex items-center gap-3 hover-scale min-w-0" aria-label="Go to home">
           <img
             src="/lovable-uploads/e7dfd389-5efd-4a22-a7b6-b1191cd26a84.png"
             alt="Vehicle Inspection App logo"
-            className="h-8 w-8 rounded-sm"
+            className="h-10 w-10 rounded-md flex-shrink-0"
           />
-          <span className="font-semibold">Vehicle Inspection App</span>
+          <span className="font-semibold text-lg truncate">Vehicle Inspection App</span>
         </a>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <ThemeToggle />
         </div>
       </div>

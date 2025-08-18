@@ -87,79 +87,132 @@ const AddVehicleScreen = () => {
   return (
     <main className="min-h-screen bg-background">
       <AppHeader />
-      <section className="max-w-3xl mx-auto p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Manage Vehicles</h1>
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => navigate("/")}>Home</Button>
-            <Button onClick={() => navigate("/new")}>New Inspection</Button>
+      <section className="max-w-2xl mx-auto p-4 space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <h1 className="text-xl sm:text-2xl font-bold">Manage Vehicles</h1>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button 
+              variant="secondary" 
+              className="flex-1 sm:flex-none h-12"
+              onClick={() => navigate("/")}
+            >
+              Home
+            </Button>
+            <Button 
+              className="flex-1 sm:flex-none h-12"
+              onClick={() => navigate("/new")}
+            >
+              New Inspection
+            </Button>
           </div>
         </div>
+
         <Card className="shadow-[var(--shadow-elegant)] animate-fade-in">
           <CardHeader>
-            <CardTitle>Add / Update Vehicle</CardTitle>
+            <CardTitle className="text-lg">Add / Update Vehicle</CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="registration">Registration</Label>
-              <Input id="registration" value={form.registration}
+              <Label htmlFor="registration">Registration *</Label>
+              <Input 
+                id="registration" 
+                className="h-12"
+                value={form.registration}
                 onChange={(e) => setForm((f) => ({ ...f, registration: e.target.value.toUpperCase() }))}
-                placeholder="e.g. ABC123GP" />
+                placeholder="e.g. ABC123GP" 
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="make">Make *</Label>
+                <Input 
+                  id="make" 
+                  className="h-12"
+                  value={form.make} 
+                  onChange={(e) => setForm((f) => ({ ...f, make: e.target.value }))} 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="model">Model *</Label>
+                <Input 
+                  id="model" 
+                  className="h-12"
+                  value={form.model} 
+                  onChange={(e) => setForm((f) => ({ ...f, model: e.target.value }))} 
+                />
+              </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="make">Make</Label>
-              <Input id="make" value={form.make} onChange={(e) => setForm((f) => ({ ...f, make: e.target.value }))} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="model">Model</Label>
-              <Input id="model" value={form.model} onChange={(e) => setForm((f) => ({ ...f, model: e.target.value }))} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="mileage">Mileage (last known)</Label>
-              <Input id="mileage" type="number" value={form.mileage} onChange={(e) => setForm((f) => ({ ...f, mileage: e.target.value }))} />
+              <Label htmlFor="mileage">Mileage</Label>
+              <Input 
+                id="mileage" 
+                type="number" 
+                className="h-12"
+                value={form.mileage} 
+                onChange={(e) => setForm((f) => ({ ...f, mileage: e.target.value }))} 
+                placeholder="Current odometer reading"
+              />
             </div>
           </CardContent>
           <CardFooter>
-            <Button disabled={disabled} onClick={onSave}>Save Vehicle</Button>
+            <Button 
+              disabled={disabled} 
+              onClick={onSave}
+              className="w-full h-12 text-base font-medium"
+            >
+              Save Vehicle
+            </Button>
           </CardFooter>
         </Card>
 
         <Card className="shadow-[var(--shadow-elegant)]">
           <CardHeader>
-            <CardTitle>Saved Vehicles</CardTitle>
+            <CardTitle className="text-lg">Saved Vehicles</CardTitle>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[calc(100vh-400px)]">
-              <div className="grid grid-cols-1 gap-4 pr-4">
-                {loading ? (
-                  <div className="text-center py-4">
-                    <p className="text-muted-foreground">Loading vehicles...</p>
-                  </div>
-                ) : vehicles.length === 0 ? (
-                  <div className="text-center py-4">
-                    <p className="text-muted-foreground">No vehicles saved yet. Add your first vehicle above.</p>
-                  </div>
-                ) : (
-                  vehicles.map((v) => (
-                    <Card key={v.registration} className="shadow-[var(--shadow-elegant)] animate-fade-in">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <span>{v.registration}</span>
-                          <span className="text-muted-foreground text-sm">{v.make} {v.model}</span>
-                          <span className="ml-auto text-sm">Mileage: {v.mileage}</span>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="text-sm text-muted-foreground">
-                        Updated: {new Date(v.updated_at).toLocaleString()}
-                      </CardContent>
-                      <CardFooter className="flex gap-2">
-                        <Button variant="destructive" onClick={() => onDelete(v.registration)}>Delete</Button>
-                      </CardFooter>
-                    </Card>
-                  ))
-                )}
-              </div>
-            </ScrollArea>
+            <div className="space-y-4">
+              {loading ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Loading vehicles...</p>
+                </div>
+              ) : vehicles.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No vehicles saved yet. Add your first vehicle above.</p>
+                </div>
+              ) : (
+                vehicles.map((v) => (
+                  <Card key={v.registration} className="shadow-[var(--shadow-elegant)] animate-fade-in">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="font-bold text-lg">{v.registration}</span>
+                          <span className="text-muted-foreground text-sm truncate">
+                            {v.make} {v.model}
+                          </span>
+                        </div>
+                        <span className="text-sm text-muted-foreground sm:ml-auto">
+                          Mileage: {v.mileage}
+                        </span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0 pb-3">
+                      <div className="text-sm text-muted-foreground">
+                        Updated: {new Date(v.updated_at).toLocaleDateString()}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="pt-0">
+                      <Button 
+                        variant="destructive" 
+                        className="w-full h-12"
+                        onClick={() => onDelete(v.registration)}
+                      >
+                        Delete Vehicle
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))
+              )}
+            </div>
           </CardContent>
         </Card>
       </section>

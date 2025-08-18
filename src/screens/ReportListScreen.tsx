@@ -74,59 +74,96 @@ const ReportListScreen = () => {
   return (
     <main className="min-h-screen bg-background">
       <AppHeader />
-      <section className="max-w-4xl mx-auto p-6 space-y-4 animate-fade-in">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Saved Inspections</h1>
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => navigate("/")}>Home</Button>
-            <Button onClick={() => navigate("/new")}>New</Button>
+      <section className="max-w-4xl mx-auto p-4 space-y-4 animate-fade-in">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <h1 className="text-xl sm:text-2xl font-bold">Saved Inspections</h1>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button 
+              variant="secondary" 
+              className="flex-1 sm:flex-none h-12"
+              onClick={() => navigate("/")}
+            >
+              Home
+            </Button>
+            <Button 
+              className="flex-1 sm:flex-none h-12"
+              onClick={() => navigate("/new")}
+            >
+              New Inspection
+            </Button>
           </div>
         </div>
 
-        <ScrollArea className="h-[calc(100vh-200px)]">
-          <div className="grid grid-cols-1 gap-4 pr-4">
-            {loading ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Loading...</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Fetching your inspection reports...</p>
-                </CardContent>
-              </Card>
-            ) : inspections.length === 0 ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle>No reports yet</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Create your first inspection to see it here.</p>
-                </CardContent>
-              </Card>
-            ) : (
-              inspections.map((ins) => (
-                <Card key={ins.id} className="shadow-[var(--shadow-elegant)]">
-                  <CardHeader>
-                    <CardTitle className="flex flex-wrap items-center gap-2">
-                      <span>{ins.vehicle_registration}</span>
-                      <span className="text-sm text-muted-foreground">{ins.vehicle_make} {ins.vehicle_model}</span>
-                      <span className="ml-auto text-sm">{new Date(ins.created_at).toLocaleString()}</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-sm text-muted-foreground">
-                      Type: {ins.inspection_type} • Mileage: {ins.vehicle_mileage} • {ins.synced ? "Synced" : "Offline"}
+        <div className="space-y-4">
+          {loading ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Loading...</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Fetching your inspection reports...</p>
+              </CardContent>
+            </Card>
+          ) : inspections.length === 0 ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>No reports yet</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center py-8">
+                <p className="text-muted-foreground mb-4">Create your first inspection to see it here.</p>
+                <Button onClick={() => navigate("/new")}>Create First Inspection</Button>
+              </CardContent>
+            </Card>
+          ) : (
+            inspections.map((ins) => (
+              <Card key={ins.id} className="shadow-[var(--shadow-elegant)]">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-bold text-lg">{ins.vehicle_registration}</span>
+                      <span className="text-sm text-muted-foreground truncate">
+                        {ins.vehicle_make} {ins.vehicle_model}
+                      </span>
                     </div>
-                  </CardContent>
-                  <CardFooter className="flex gap-2">
-                    <Button variant="outline" onClick={() => onExport(ins)}>Export PDF</Button>
-                    <Button variant="destructive" onClick={() => onDelete(ins.id)}>Delete</Button>
-                  </CardFooter>
-                </Card>
-              ))
-            )}
-          </div>
-        </ScrollArea>
+                    <span className="text-sm text-muted-foreground sm:ml-auto">
+                      {new Date(ins.created_at).toLocaleDateString()}
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0 pb-3">
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                    <span>Type: {ins.inspection_type}</span>
+                    <span>Mileage: {ins.vehicle_mileage}</span>
+                    <span className={ins.synced ? "text-green-600" : "text-orange-600"}>
+                      {ins.synced ? "✓ Synced" : "⚬ Offline"}
+                    </span>
+                  </div>
+                  {ins.driver_name && (
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Driver: {ins.driver_name}
+                    </div>
+                  )}
+                </CardContent>
+                <CardFooter className="flex flex-col sm:flex-row gap-3 pt-0">
+                  <Button 
+                    variant="outline" 
+                    className="w-full sm:w-auto h-12"
+                    onClick={() => onExport(ins)}
+                  >
+                    Export PDF
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    className="w-full sm:w-auto h-12"
+                    onClick={() => onDelete(ins.id)}
+                  >
+                    Delete
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))
+          )}
+        </div>
       </section>
     </main>
   );
