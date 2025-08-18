@@ -9,8 +9,8 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const updateHeadSEO = () => {
-  document.title = "Sign Up | GAAP Prototype";
-  const desc = "Create your GAAP Prototype inspector account.";
+  document.title = "Sign Up | Vehicle Inspection App";
+  const desc = "Create your Vehicle Inspection App inspector account.";
   let meta = document.querySelector('meta[name="description"]');
   if (!meta) {
     meta = document.createElement("meta");

@@ -107,25 +107,26 @@ const InspectionFormScreen = () => {
 
   const onSave = async () => {
     try {
-      // Check if vehicle exists
-      const allVehicles = await getAllVehicles();
-      const existingVehicle = allVehicles.find(v => v.registration.toUpperCase() === vehicle.registration.toUpperCase());
-      
-      if (existingVehicle) {
-        // Update existing vehicle
-        await updateVehicle(vehicle.registration, {
-          make: vehicle.make,
-          model: vehicle.model,
-          mileage: Number(vehicle.mileage || 0),
-        });
-      } else {
-        // Create new vehicle
+      // Ensure a vehicle record exists for THIS user (FK requires user_id + registration)
+      try {
         await createVehicle({
           registration: vehicle.registration,
           make: vehicle.make,
           model: vehicle.model,
           mileage: Number(vehicle.mileage || 0),
         });
+      } catch (e: any) {
+        // If it already exists for this user, update it instead
+        const code = e?.code || e?.cause?.code;
+        if (code === "23505") {
+          await updateVehicle(vehicle.registration, {
+            make: vehicle.make,
+            model: vehicle.model,
+            mileage: Number(vehicle.mileage || 0),
+          });
+        } else {
+          throw e;
+        }
       }
 
       // Save inspection to database

@@ -11,7 +11,7 @@ const HomeScreen = () => {
         <Card className="shadow-[var(--shadow-elegant)]">
           <CardHeader>
             <CardTitle className="text-3xl font-bold">
-              Vehicle Inspection (GAAP Prototype)
+              Vehicle Inspection App
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">

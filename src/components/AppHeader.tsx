@@ -7,10 +7,10 @@ const AppHeader = () => {
         <a href="/" className="flex items-center gap-2 hover-scale" aria-label="Go to home">
           <img
             src="/lovable-uploads/e7dfd389-5efd-4a22-a7b6-b1191cd26a84.png"
-            alt="GAAP logo"
+            alt="Vehicle Inspection App logo"
             className="h-8 w-8 rounded-sm"
           />
-          <span className="font-semibold">GAAP Prototype</span>
+          <span className="font-semibold">Vehicle Inspection App</span>
         </a>
         <div className="flex items-center gap-2">
           <ThemeToggle />
