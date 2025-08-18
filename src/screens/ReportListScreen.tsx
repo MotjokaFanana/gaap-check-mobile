@@ -37,8 +37,27 @@ const ReportListScreen = () => {
     loadInspections();
   }, [user, navigate]);
 
-  const onExport = async (ins: any) => {
-    await exportInspectionAsPDF(ins);
+  const onExport = async (ins: Inspection) => {
+    // Transform database inspection to StoredInspection format for PDF export
+    const transformedInspection = {
+      id: ins.id,
+      createdAt: ins.created_at,
+      inspectionType: ins.inspection_type,
+      vehicle: {
+        make: ins.vehicle_make,
+        model: ins.vehicle_model,
+        registration: ins.vehicle_registration,
+        mileage: ins.vehicle_mileage?.toString() || '0'
+      },
+      checklist: ins.checklist,
+      generalComments: ins.general_comments,
+      inspectorName: ins.inspector_name,
+      driverName: ins.driver_name,
+      signatureDataUrl: ins.signature_data_url,
+      synced: ins.synced
+    };
+    
+    await exportInspectionAsPDF(transformedInspection);
   };
 
   const onDelete = async (id: string) => {
